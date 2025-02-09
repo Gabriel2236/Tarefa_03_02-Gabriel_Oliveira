@@ -38,11 +38,9 @@ uint32_t last_time = 0;
 void gpio_irq_handler(uint gpio, uint32_t events) {
     uint32_t current_time = to_us_since_boot(get_absolute_time());
 
-    if (current_time - last_time > 300000) {
+    if (current_time - last_time > 200000) {
         if (gpio == BOTTON_A ) {
 
-            
-            
             gpio_put(led_g, !gpio_get(led_g));
             if(gpio_get(led_g) == true){
             printf("LED verde ligado\n");
@@ -197,6 +195,13 @@ double num9[25] = {
     0.0, 0.1, 0.0, 0.1, 0.0,
     0.0, 0.1, 0.1, 0.1, 0.0};
 
+double numnull[25] = {
+    0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0};
+
 
 
     
@@ -257,13 +262,12 @@ int main()
 while (true) {
 
     if(stdio_usb_connected()){
-    printf("Digite algo: ");
+    printf("Digite um caractere: \n");
     
     char c;
 
     if (scanf("%c", &c) == 1){
     
-    // Lê a entrada do monitor serial (limite de 29 caracteres para evitar overflow)
 
     ssd1306_fill(&ssd, false); // Limpa o display
     ssd1306_draw_char(&ssd, c, 10, 30); // Escreve no display (posição X=10, Y=30)
@@ -311,12 +315,13 @@ while (true) {
             break;   
 
         default:
+        desenho_pio(numnull, pio, sm, r, g, b);
             break;
         }
 
     }
 
     }
-    sleep_ms(1000);
+    sleep_ms(200);
 }
 }
