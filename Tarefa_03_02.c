@@ -20,6 +20,11 @@
 #define endereco 0x3C
 ssd1306_t ssd;
 
+#define UART_ID uart0
+#define BAUD_RATE 115200
+#define UART_TX_PIN 0
+#define UART_RX_PIN 1 
+
 // Definições da matriz de LEDs
 #define NUM_PIXELS 25
 #define OUT_PIN 7
@@ -208,11 +213,15 @@ double numnull[25] = {
 int main()
 {
     stdio_init_all();
-
+    uart_init(UART_ID, BAUD_RATE);
+    
     printf("Iniciando a comunicação serial...\n");
     fflush(stdout);
 
     i2c_init(I2C_PORT, 400 * 1000);
+
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C); // Define a função GPIO para I2C
     gpio_set_function(I2C_SCL, GPIO_FUNC_I2C); // Define a função GPIO para I2C
@@ -259,7 +268,81 @@ int main()
 
      // Buffer para armazenar a string digitada
 
+     uart_puts(UART_ID, "Digite um caractere");
+     uart_puts(UART_ID, "\r\n");
+
 while (true) {
+    char c;
+
+    if(uart_is_readable(UART_ID)){
+        int i =0;
+
+        if(i>0){
+            uart_puts(UART_ID, "Digite um caractere");
+            uart_puts(UART_ID, "\r\n");
+        }
+
+        
+
+        c = uart_getc(UART_ID);
+
+        // Exibe o caractere no display OLED
+        ssd1306_draw_char(&ssd, c, 20, 30);
+        ssd1306_send_data(&ssd);
+
+        // Envia a tecla pressionada de volta pela UART
+        uart_puts(UART_ID, "Tecla pressionada: ");
+        uart_putc(UART_ID, c);
+        uart_puts(UART_ID, "\r\n");
+
+        switch (c)
+        {
+        case '0':
+           desenho_pio(num0, pio, sm, r, g, b); 
+            break;
+
+        case '1':
+           desenho_pio(num1, pio, sm, r, g, b); 
+            break;
+
+        case '2':
+           desenho_pio(num2, pio, sm, r, g, b); 
+            break;
+            
+        case '3':
+           desenho_pio(num3, pio, sm, r, g, b); 
+            break; 
+
+        case '4':
+           desenho_pio(num4, pio, sm, r, g, b); 
+            break;
+
+        case '5':
+           desenho_pio(num5, pio, sm, r, g, b); 
+            break;
+        case '6':
+           desenho_pio(num6, pio, sm, r, g, b); 
+            break;
+            
+        case '7':
+           desenho_pio(num7, pio, sm, r, g, b); 
+            break;
+
+        case '8':
+           desenho_pio(num8, pio, sm, r, g, b); 
+            break;
+
+        case '9':
+           desenho_pio(num9, pio, sm, r, g, b); 
+            break;   
+
+        default:
+        desenho_pio(numnull, pio, sm, r, g, b);
+            break;
+        }
+        
+        
+    }
 
     if(stdio_usb_connected()){
     printf("Digite um caractere: \n");
@@ -267,6 +350,8 @@ while (true) {
     char c;
 
     if (scanf("%c", &c) == 1){
+
+    printf("Tecla pressionada %c \n", c);
     
 
     ssd1306_fill(&ssd, false); // Limpa o display
